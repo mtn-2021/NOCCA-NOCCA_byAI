@@ -135,22 +135,17 @@ def input_stone(n: NoccaNocca) -> int:
 def input_direction(n: NoccaNocca) -> str:
     status = n.valid_directions
     direction = int(status[0])
-
+    print("which direction?")
     while True :
         d_map = ["     ↑     :",
                  " ← ENTER → :",
                  "     ↓     :"]
         for i in range(9):
-            if str(i) in status:
-                if direction != i:
-                    d_map[i // 3] += "□   "
-                else:
-                    d_map[i // 3] += "■   "
-            else :
-                if direction != i:
-                    d_map[i // 3] += "    "
-                else:
-                    d_map[i // 3] += "×   "
+            d_map[i // 3] += ("%s   " % (
+                             ("□" if direction != i else "■") 
+                            if str(i) in status else 
+                             ((" " if i != 4 else "○") if direction != i else "×")))
+                    
         write_map = "".join(map(lambda row : row + "\n", d_map))
         sys.stdout.write(f"{write_map}\033[3A".format())
         sys.stdout.flush()
@@ -181,8 +176,6 @@ def main():
 
         i, j = input_stone(n)
         n.select_ij(i, j)
-
-        print('-' * 32)
 
         direction = input_direction(n)
         n.select_direction(direction)
