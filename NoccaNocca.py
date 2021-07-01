@@ -1,6 +1,8 @@
+from Nocca_AI import Nocca_AI
 import itertools
 import sys
 import msvcrt
+import random
 BLACK = 0
 WHITE = 1
 HEIGHT = 6
@@ -104,6 +106,30 @@ class NoccaNocca(object):
             return f'{turn} conquered the board!!'.format()
         return f'{self.turn} Moved' 
 
+def imput_mode() -> int:
+    modes = ["vs AI","vs Human"]
+    status = ', '.join(map(lambda mode: "[" + mode + "]", modes))
+    print(f'which mode?  {status}'.format())
+    point = 0
+    branch = len(modes)-1
+    space = [" " * (len(mode)+4) for mode in modes]
+
+    while True :
+        cursor = " " * (len(space[point])//2) + "".join(space[:point]) + "*" + "".join(space[point:])
+        sys.stdout.write(f"\r← ENTER → :{cursor}".format())
+        sys.stdout.flush()
+        key = msvcrt.getch()
+        if key == b'K' and point > 0 : # 左
+            point -= 1
+        elif key ==b'M' and point < branch : # 右
+            point += 1
+        elif key == b'\r': # ENTER
+            print()
+            break
+        elif key == b'\x03': # ctrl + c
+            sys.exit()
+    
+    return point
 
 def input_stone(n: NoccaNocca) -> int:
     # 有効駒リスト[(i,j),…]のijの組み合わせごとにデータを(i j)に置き換えて羅列
@@ -170,16 +196,27 @@ def input_direction(n: NoccaNocca) -> str:
 
 def main():
     n = NoccaNocca()
+    auto = imput_mode()
+    swich = 0
+    if auto == 0:
+        ai = Nocca_AI()
+        swich = random.randint(0,1) 
+
     while n.is_continuing:
         print('=' * 32)
         n.print_board()
 
-        i, j = input_stone(n)
-        n.select_ij(i, j)
-
-        direction = input_direction(n)
+        if swich & (not auto):
+            i, j = ai.select_stone(n.board, n.valid_ij_li)
+            n.select_ij(i, j) ##ここで有効方向を決めているのでこの処理はくくりだせません
+            direction = ai.select_direction(n.valid_directions)
+            swich = False
+        else:
+            i, j = input_stone(n)
+            n.select_ij(i, j)
+            direction = input_direction(n)
+            swich = True
         n.select_direction(direction)
-        
         print(n.move())
 
     print('=' * 32)
