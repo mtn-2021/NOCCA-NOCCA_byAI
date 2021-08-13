@@ -5,6 +5,7 @@ import itertools
 import sys
 import msvcrt
 import random
+import NOCCA_slecteval
 BLACK = 0
 WHITE = 1
 HEIGHT = 6
@@ -198,6 +199,9 @@ def input_direction(n: NoccaNocca) -> str:
 
 def main():
     n = NoccaNocca()
+    list = NOCCA_slecteval.make_dummy()
+    NOCCA_slecteval.SelectEval(list)
+
     auto = imput_mode()
     swich = 0
     if auto == 0:
