@@ -63,7 +63,6 @@ def boardToState(board: list) -> State:
   # state.P_position = [20,2,27,28,29]
   return state
 
-# 下二つはパブリック
 def printState(state: State):
   board = stateToBoard(state)
       

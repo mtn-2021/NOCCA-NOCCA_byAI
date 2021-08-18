@@ -19,7 +19,8 @@ def makeTree(state : State, depth : int) -> list[StateNode]:
 
         ban = _checkBan(n.state) # 駒が3つ積もっている地点を取得
         turn = (n.depth % 2 == 0) # 現在のノードが誰のターンか取得
-        stones = (n.state.P_position if turn else n.state.E_position) # 現在ノードのターンプレイヤーの駒一覧を取得
+        stones = (n.state.E_position if turn else n.state.P_position) # 現在ノードのターンプレイヤーの駒一覧を取得
+        # print("aaa",stones)
         
         for posInx,position in enumerate(stones): # ターンプレイヤーの駒一つ一つに処理を行う
             move = _checkCanMove(position,ban,turn) # 参照している駒の動ける方向を取得
@@ -31,8 +32,8 @@ def makeTree(state : State, depth : int) -> list[StateNode]:
 
 def _checkEnd(state : State) -> bool:
     end = False
-    if (([i for i in state.P_position if i%100 > 30]) or # 味方が敵陣に入っていれば or
-        ([i for i in state.E_position if i%100 <= 0]) or # 敵が自陣に入っていれば or
+    if (([i for i in state.E_position if i%100 > 29]) or # 味方が敵陣に入っていれば or
+        ([i for i in state.P_position if i%100 < 0]) or # 敵が自陣に入っていれば or
         (not [i for i in state.P_position if i < 100]) or # 味方が一人も動けなければ or
         (not [i for i in state.E_position if i < 100])): # 敵が一人も動けなければ
         end = True # ゲームは終わっている
@@ -41,7 +42,7 @@ def _checkEnd(state : State) -> bool:
 def _getNextNode(n : StateNode, m : int, treeInx : int,posInx : int,turn : bool) -> StateNode:
     pList = [i + 100 if i % 100 == m else i for i in n.state.P_position] # 移動先の座標に既にある駒を沈下
     eList = [i + 100 if i % 100 == m else i for i in n.state.E_position]
-    turnList = pList if turn else eList
+    turnList = eList if turn else pList
     tmp = turnList[posInx] # 駒を移動
     turnList[posInx] = m
     pList = [i - 100 if i % 100 == tmp else i for i in pList] # 移動前の座標にある駒を浮上
@@ -60,13 +61,13 @@ def _checkCanMove(p : int, tripleZone : array.array("i",[]), turn : bool) -> arr
     ban = array.array("i",[])
     if  p // 100 != 0: # 上に駒が乗ってたら動けない
         return ban
-    if xy_p % 5 == 0: # 駒が下端にあるなら下方向には動けない
+    if xy_p % 5 == 0: # 駒が左端にあるなら左方向には動けない
+        ban.extend([p-6,p-1,p+4])
+    elif xy_p % 5 == 4: # 駒が右端にあるなら右方向には動けない
         ban.extend([p-4,p+1,p+6])
-    elif xy_p % 5 == 1: # 駒が上端にあるなら上方向には動けない
-        ban.extend([p+4,p-1,p-6])
-    ((ban.extend([p-6,p-5,p-4]) if xy_p <= 5 else None ) # AIの駒で尚且つ左端なら左方向には動けない
+    ((ban.extend([p-6,p-5,p-4]) if xy_p < 5 else None ) # AIの駒で尚且つ上端なら上方向には動けない
      if turn else 
-     (ban.extend([p+6,p+5,p+4]) if xy_p >=26 else None)) # ユーザーの駒で尚且つ右端なら右方向には動けない
+     (ban.extend([p+6,p+5,p+4]) if 30 > xy_p > 24 else None)) # ユーザーの駒で尚且つ下端なら下方向には動けない
     
     
     ban.extend(tripleZone) # 三つ積もっているところには動けない
