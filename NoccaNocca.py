@@ -1,9 +1,7 @@
-import MakeTree
 from State import State
 from Operator import Operator
 from Nocca_AI import Nocca_AI
 import stateTransition
-import itertools
 import sys
 import msvcrt
 import random
@@ -55,16 +53,16 @@ class NoccaNocca(object):
         # print(p for p in self.state.P_position if p < 100) if self.turn == WHITE else (e for e in self.state.E_position if e < 100)
         p = [p for p in self.state.P_position if p < 100 if self.turn == BLACK]
         e = [e for e in self.state.E_position if e < 100 if self.turn == WHITE]
-        print(self.turn)
+        # print(self.turn)
         self.valid_ij_li = p if p else e
         # [(i, j) for i, j in itertools.product(range(HEIGHT), range(WIDTH)) if len(self.board[i][j]) > 0 and self.board[i][j][-1] == self.turn]
 
     def set_valid_directions(self):
         # 'hjklyubn' キーボードの並びだと思われる
         self.valid_directions = '01235678'
-        if   self.target >= 0 and self.target <= 4 and self.turn == BLACK: # 上端(0のみ)
+        if   self.target >= 0 and self.target <= 4 and self.turn == WHITE: # 上端(0のみ)
             self.valid_directions = self.valid_directions.replace('0', '').replace('1', '').replace('2', '')
-        elif self.target >= 25 and self.target <= 29 and self.turn == WHITE: # 下端(1のみ)
+        elif self.target >= 25 and self.target <= 29 and self.turn == BLACK: # 下端(1のみ)
             self.valid_directions = self.valid_directions.replace('6', '').replace('7', '').replace('8', '')
         if   self.target % 5 == 0: # 左端
             self.valid_directions = self.valid_directions.replace('0', '').replace('3', '').replace('6', '')
@@ -145,7 +143,7 @@ def imput_mode() -> int:
 
 def input_stone(n: NoccaNocca) -> int:
     # 有効駒リスト[(i,j),…]のijの組み合わせごとにデータを(i j)に置き換えて羅列
-    print(n.valid_ij_li)
+    # print(n.valid_ij_li)
     status = ', '.join(map(lambda i: str(i), n.valid_ij_li))
     print(f'which stone?  [(i j)∈ {status}]'.format())
     
@@ -218,8 +216,8 @@ def makeOperator(direction: int, target: int) -> Operator:
 
 def main():
     n = NoccaNocca()
-    list = NOCCA_slecteval.make_dummy()
-    NOCCA_slecteval.SelectEval(list)
+    # list = NOCCA_slecteval.make_dummy()
+    # NOCCA_slecteval.SelectEval(list)
     auto = imput_mode()
     swich = BLACK
     if auto == 0:
@@ -234,8 +232,7 @@ def main():
         n.set_valid_ij_li() 
         if swich & (not auto):
             print("AI:", n.valid_ij_li)
-            op.target = n.valid_ij_li[0]
-            op.derection = 6
+            op = ai.select_move(n.state)
             # target = ai.select_stone(n.board, n.valid_ij_li)
             # n.select_ij(i, j) ##ここで有効方向を決めているのでこの処理はくくりだせません
             # direction = ai.select_direction(n.valid_directions)

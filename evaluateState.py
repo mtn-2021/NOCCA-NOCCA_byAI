@@ -53,7 +53,7 @@ def evaluateState(states):
               positionPointE=positionPointE-1
 
         #Userの駒の座標(C_position)を評価する
-        for position in Node.state.C_position:
+        for position in Node.state.P_position:
 
           positionCmP=position#Userの駒の位置を代入
 
@@ -92,7 +92,7 @@ def evaluateState(states):
         ########相手の駒の周りについて考える##########
         #AIの駒から見てUserの駒が近くにあるか確認
         for positionE in Node.state.E_position:
-          for positionC in Node.state.C_position:
+          for positionC in Node.state.P_position:
             #print("AI:",positionE)
             #print("User",positionC)
             positionEm=positionE#AIの駒の位置を代入
@@ -148,7 +148,7 @@ def evaluateState(states):
             #print(isNearbyE)
 
         #Userの駒から見てAIの駒が近くにあるか確認
-        for positionC in Node.state.C_position:
+        for positionC in Node.state.P_position:
           for positionE in Node.state.E_position:
 
             

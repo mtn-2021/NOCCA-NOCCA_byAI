@@ -55,8 +55,9 @@ def SelectEval(list: list[StateNode]) -> Operator :
             list[parent[0]].eval = max(eval) if depth % 2 == 0 else min(eval)
            
             if parent[0] == 0:
-                state =   list[(len(eval)+1) - eval.index(max(eval))].state
+                state =   list[(len(eval)) - eval.index(max(eval))].state
                 #print(len(eval) - eval.index(max(eval)))
+                # print(state.P_position)
             
             
             ##print(list[parent[0]].eval)
@@ -84,11 +85,12 @@ def SelectEval(list: list[StateNode]) -> Operator :
 
 
 def getOperator(before: State , after: State) -> Operator:
-    before2 = [i % 100 for i in before.P_position]
+    before2 = [i % 100 for i in before.E_position]
     operator = Operator()
-
+    print(before2)
+    # print(after.E_position, after.P_position)
     for i, j in enumerate(before2): #
-        after2 = after.P_position[i]%100
+        after2 = after.E_position[i]%100
         if not j == after2:
             operator.target = j
             operator.derection = after2 - j
