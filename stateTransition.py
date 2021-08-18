@@ -90,9 +90,16 @@ def stateTransition(operator: Operator, state: State) -> State:
   print("OPDIREC", operator.derection)
   target = board[operator.target].pop()
   print("TARG", target)
+  nextTarget = operator.target + operator.derection
+  if nextTarget < 0 or nextTarget > 29:
+    return None
   board[operator.target + operator.derection].append(target)
   print("AFTER", board)
   fixState = boardToState(board)
+  pl = [p for p in fixState.P_position if p < 100]
+  el = [e for e in fixState.E_position if e < 100]
+  if not pl or not el:
+    return None
   return fixState
 
 """"""""""
