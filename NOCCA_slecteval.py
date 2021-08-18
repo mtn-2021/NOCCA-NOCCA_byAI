@@ -13,7 +13,7 @@ def make_dummy () -> list[StateNode] :
     n = StateNode(a)
     list.append(n)
     
-    #eval = [5,3,2,4]
+    eval = [5,3,2,4]
     for j in range(2):
         a= State()
         a.P_position.append(j+1)
@@ -75,7 +75,7 @@ def SelectEval(list: list[StateNode]) -> Operator :
     # state2.P_position = [1, 3, 203, 4, 5]
     
     # operator = getOperator(state, state2)
-    print(operator.target, operator.derection)
+    # print(operator.target, operator.derection)
     
 
     return operator
@@ -98,42 +98,3 @@ def getOperator(before: State , after: State) -> Operator:
     return operator
 
     
-            
-
-
-
-
-
-        
-            
-                
-
-            
-            
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-

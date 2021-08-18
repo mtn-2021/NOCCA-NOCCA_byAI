@@ -1,6 +1,8 @@
 import MakeTree
 from State import State
+from Operator import Operator
 from Nocca_AI import Nocca_AI
+import stateTransition
 import itertools
 import sys
 import msvcrt
@@ -18,9 +20,11 @@ class NoccaNocca(object):
         self.init_board()
         self.is_continuing = True # 終了条件
         self.turn = BLACK # BLACKが先攻
-        self.i = None # 操作する駒の座標
-        self.j = None
+        self.target = None
         self.direction = None # 進もうとしている方向
+        self.state = State()
+        self.state.E_position = [0,1,2,3,4]
+        self.state.P_position = [25,26,27,28,29]
         self.set_valid_ij_li()
 
 
@@ -47,36 +51,41 @@ class NoccaNocca(object):
             print(' '.join(map(lambda j: ''.join(map(str, self.board[i][j])) + '_' * (3-len(self.board[i][j])), range(WIDTH))))
 
     def set_valid_ij_li(self): # 有効な駒の座標のリスト: if 駒が置いてある & 一番上が自分の駒である
-        self.valid_ij_li = [(i, j) for i, j in itertools.product(range(HEIGHT), range(WIDTH)) if len(self.board[i][j]) > 0 and self.board[i][j][-1] == self.turn]
+        # print([p for p in self.state.P_position if p < 100])
+        # print(p for p in self.state.P_position if p < 100) if self.turn == WHITE else (e for e in self.state.E_position if e < 100)
+        p = [p for p in self.state.P_position if p < 100 if self.turn == BLACK]
+        e = [e for e in self.state.E_position if e < 100 if self.turn == WHITE]
+        print(self.turn)
+        self.valid_ij_li = p if p else e
+        # [(i, j) for i, j in itertools.product(range(HEIGHT), range(WIDTH)) if len(self.board[i][j]) > 0 and self.board[i][j][-1] == self.turn]
 
     def set_valid_directions(self):
         # 'hjklyubn' キーボードの並びだと思われる
         self.valid_directions = '01235678'
-        if   self.i == 0 and self.turn == BLACK: # 上端(0のみ)
+        if   self.target >= 0 and self.target <= 4 and self.turn == BLACK: # 上端(0のみ)
             self.valid_directions = self.valid_directions.replace('0', '').replace('1', '').replace('2', '')
-        elif self.i == HEIGHT-1 and self.turn == WHITE: # 下端(1のみ)
+        elif self.target >= 25 and self.target <= 29 and self.turn == WHITE: # 下端(1のみ)
             self.valid_directions = self.valid_directions.replace('6', '').replace('7', '').replace('8', '')
-        if   self.j == 0: # 左端
+        if   self.target % 5 == 0: # 左端
             self.valid_directions = self.valid_directions.replace('0', '').replace('3', '').replace('6', '')
-        elif self.j == WIDTH-1: # 右端
+        elif self.target % 5 == 4: # 右端
             self.valid_directions = self.valid_directions.replace('2', '').replace('5', '').replace('8', '')
-        for direction, (_i, _j) in {
-            '0': (-1, -1), '1': (-1,  0), '2': (-1,  1),
-            '3': ( 0, -1),                '5': ( 0,  1),
-            '6': ( 1, -1), '7': ( 1,  0), '8': ( 1,  1)
+        for direction, (_target) in {
+            '0': (-6), '1': (-5), '2': (-4),
+            '3': (-1),                '5': (1),
+            '6': (4), '7': (5), '8': (6)
         }.items(): # すでに3つ駒がある方向も除外
-            if direction in self.valid_directions and len(self.board[self.i+_i][self.j+_j]) == 3:
+            if direction in self.valid_directions and self.target + _target in [p % 100 for p in (self.state.P_position + self.state.E_position) if p >= 200] :
                 self.valid_directions = self.valid_directions.replace(direction, '')
 
-    def select_ij(self, i: range(HEIGHT), j: range(WIDTH)) -> bool:
-        if (i, j) not in self.valid_ij_li:
+    def select_ij(self, target: int) -> bool:
+        if (target) not in self.valid_ij_li:
             return False # if 指定したマスに有効な駒がない
-        self.i = i
-        self.j = j
+        self.target = target
         self.set_valid_directions()
         return True
 
-    def select_direction(self, direction: str) -> bool:
+    def select_direction(self, direction: int) -> bool:
         if direction not in self.valid_directions:
             return False
         self.direction = direction
@@ -84,12 +93,12 @@ class NoccaNocca(object):
 
     def move(self) -> str:
         _i, _j = {
-            '0': (-1, -1), '1': (-1,  0), '2': (-1,  1),
-            '3': ( 0, -1),                '5': ( 0,  1),
-            '6': ( 1, -1), '7': ( 1,  0), '8': ( 1,  1)
+            '0': (-6), '1': (-5), '2': (-4),
+            '3': (-1),                '5': (1),
+            '6': (4), '7': (5), '8': (6)
         }[self.direction]
-        i_ = self.i + _i # 移動先
-        j_ = self.j + _j
+        i_ = self.target + _i # 移動先
+        j_ = self.target + _j
 
         if (self.turn == BLACK and i_ > HEIGHT) or (self.turn == WHITE and i_ < 0):
             self.is_continuing = False
@@ -136,15 +145,16 @@ def imput_mode() -> int:
 
 def input_stone(n: NoccaNocca) -> int:
     # 有効駒リスト[(i,j),…]のijの組み合わせごとにデータを(i j)に置き換えて羅列
-    status = ', '.join(map(lambda ij: str(ij).replace(',', ''), n.valid_ij_li))
+    print(n.valid_ij_li)
+    status = ', '.join(map(lambda i: str(i), n.valid_ij_li))
     print(f'which stone?  [(i j)∈ {status}]'.format())
     
     point = 0
     branch = len(n.valid_ij_li) - 1
-    space = " " * 7
+    space = " " * 4
 
     while True :
-        cursor = " " * 13 + space * point + "*" + space * (branch-point)
+        cursor = " " * 12 + space * point + "*" + space * (branch-point)
         sys.stdout.write(f"\r← ENTER → :{cursor}".format())
         sys.stdout.flush()
         key = msvcrt.getch()
@@ -157,11 +167,10 @@ def input_stone(n: NoccaNocca) -> int:
             break
         elif key == b'\x03': # ctrl + c
             sys.exit()
+    n.select_ij(n.valid_ij_li[point])
 
-    return map(int,n.valid_ij_li[point])
 
-
-def input_direction(n: NoccaNocca) -> str:
+def input_direction(n: NoccaNocca):
     status = n.valid_directions
     direction = int(status[0])
     print("which direction?")
@@ -193,37 +202,58 @@ def input_direction(n: NoccaNocca) -> str:
         elif key == b'\x03': # ctrl + c
             print("\n\n")
             sys.exit()
+    _j = {
+    '0': (-6), '1': (-5), '2': (-4),
+    '3': (-1),                '5': (1),
+    '6': (4), '7': (5), '8': (6)
+    }[str(direction)]
+    # print(_j)
+    n.direction = _j
 
-    return str(direction)
-
+def makeOperator(direction: int, target: int) -> Operator:
+  op = Operator()
+  op.target = target
+  op.derection = direction
+  return op
 
 def main():
     n = NoccaNocca()
     list = NOCCA_slecteval.make_dummy()
     NOCCA_slecteval.SelectEval(list)
-
     auto = imput_mode()
-    swich = 0
+    swich = BLACK
     if auto == 0:
         ai = Nocca_AI()
-        swich = random.randint(0,1) 
+        swich = random.randint(BLACK,WHITE) 
+        n.turn = WHITE if swich else BLACK
 
     while n.is_continuing:
         print('=' * 32)
-        n.print_board()
-
+        stateTransition.printState(n.state) # 状態表現でのプリント
+        op = Operator()
+        n.set_valid_ij_li() 
         if swich & (not auto):
-            i, j = ai.select_stone(n.board, n.valid_ij_li)
-            n.select_ij(i, j) ##ここで有効方向を決めているのでこの処理はくくりだせません
-            direction = ai.select_direction(n.valid_directions)
+            print("AI:", n.valid_ij_li)
+            op.target = n.valid_ij_li[0]
+            op.derection = 6
+            # target = ai.select_stone(n.board, n.valid_ij_li)
+            # n.select_ij(i, j) ##ここで有効方向を決めているのでこの処理はくくりだせません
+            # direction = ai.select_direction(n.valid_directions)
             swich = False
         else:
-            i, j = input_stone(n)
-            n.select_ij(i, j)
-            direction = input_direction(n)
+            print("PLAYER:", n.valid_ij_li)
+            input_stone(n)
+            # n.select_ij(i, j)
+            input_direction(n)
+            # print(n.direction)
+            # n.select_direction(n.direction)
+            op = makeOperator(n.direction, n.target)
             swich = True
-        n.select_direction(direction)
-        print(n.move())
+        n.turn = WHITE if swich else BLACK
+        # print(op.target)
+        # print(op.derection)
+        n.state = stateTransition.stateTransition(op, n.state)
+        # print(n.move())
 
     print('=' * 32)
     winner={BLACK: 'BLACK',WHITE: 'WHITE'}[n.winner]
