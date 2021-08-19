@@ -1,12 +1,6 @@
 import array
 from State import State
 from StateNode import StateNode
-#先行後攻で陣地が変わるのであれば修正が必要
-#state = State()
-#state.P_position.extend([1,2,3,4,5])
-#state.E_position.extend([26,27,28,29,30])
-#MakeTree.makeTree(state,3)
-
 
 def makeTree(state : State, depth : int) -> list[StateNode]:
     node = StateNode(state) # 初期状態
@@ -20,7 +14,6 @@ def makeTree(state : State, depth : int) -> list[StateNode]:
         ban = _checkBan(n.state) # 駒が3つ積もっている地点を取得
         turn = (n.depth % 2 == 0) # 現在のノードが誰のターンか取得
         stones = (n.state.E_position if turn else n.state.P_position) # 現在ノードのターンプレイヤーの駒一覧を取得
-        # print("aaa",stones)
         
         for posInx,position in enumerate(stones): # ターンプレイヤーの駒一つ一つに処理を行う
             move = _checkCanMove(position,ban,turn) # 参照している駒の動ける方向を取得
@@ -34,8 +27,8 @@ def _checkEnd(state : State) -> bool:
     end = False
     if (([i for i in state.E_position if i%100 > 29]) or # 味方が敵陣に入っていれば or
         ([i for i in state.P_position if i%100 < 0]) or # 敵が自陣に入っていれば or
-        (not [i for i in state.P_position if i < 100]) or # 味方が一人も動けなければ or
-        (not [i for i in state.E_position if i < 100])): # 敵が一人も動けなければ
+        (not [i for i in state.P_position if i < 100]) or # 敵が一人も動けなければ or
+        (not [i for i in state.E_position if i < 100])): # 味方が一人も動けなければ
         end = True # ゲームは終わっている
     return end
 
@@ -43,8 +36,8 @@ def _getNextNode(n : StateNode, m : int, treeInx : int,posInx : int,turn : bool)
     pList = [i + 100 if i % 100 == m else i for i in n.state.P_position] # 移動先の座標に既にある駒を沈下
     eList = [i + 100 if i % 100 == m else i for i in n.state.E_position]
     turnList = eList if turn else pList
-    tmp = turnList[posInx] # 駒を移動
-    turnList[posInx] = m
+    tmp = turnList[posInx] 
+    turnList[posInx] = m # 駒を移動
     pList = [i - 100 if i % 100 == tmp else i for i in pList] # 移動前の座標にある駒を浮上
     eList = [i - 100 if i % 100 == tmp else i for i in eList]    
     

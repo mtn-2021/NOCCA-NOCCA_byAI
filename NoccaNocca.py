@@ -41,8 +41,8 @@ class NoccaNocca(object):
             self.valid_directions = self.valid_directions.replace('2', '').replace('5', '').replace('8', '')
         for direction, (_target) in {
             '0': (-6), '1': (-5), '2': (-4),
-            '3': (-1),                '5': (1),
-            '6': (4), '7': (5), '8': (6)
+            '3': (-1),            '5': (1),
+            '6': (4),  '7': (5),  '8': (6)
         }.items(): # すでに3つ駒がある方向も除外
             if direction in self.valid_directions and self.target + _target in [p % 100 for p in (self.state.P_position + self.state.E_position) if p >= 200] :
                 self.valid_directions = self.valid_directions.replace(direction, '')
@@ -105,7 +105,7 @@ def input_stone(n: NoccaNocca) -> int:
     n.select_ij(n.valid_ij_li[point])
 
 
-def input_direction(n: NoccaNocca):
+def input_direction(n: NoccaNocca) -> bool:
     status = n.valid_directions
     direction = int(status[0])
     print("which direction?")
@@ -117,7 +117,7 @@ def input_direction(n: NoccaNocca):
             d_map[i // 3] += ("%s   " % (
                              ("□" if direction != i else "■") 
                             if str(i) in status else 
-                             ((" " if i != 4 else "○") if direction != i else "×")))
+                             ((" " if i != 4 else "○") if direction != i else ("×" if i != 4 else "●"))))
                     
         write_map = "".join(map(lambda row : row + "\n", d_map))
         sys.stdout.write(f"{write_map}\033[3A".format())
@@ -131,18 +131,21 @@ def input_direction(n: NoccaNocca):
             direction -= 3
         elif key == b'P' and (direction + 3) <= 8 : # 下
             direction += 3
-        elif key == b'\r' and str(direction) in status: # ENTER
+        elif key == b'\r' and str(direction) in status + "4": # ENTER
             print("\n\n\n")
             break
         elif key == b'\x03': # ctrl + c
             print("\n\n")
             sys.exit()
+    if direction == 4:
+        return True
     _j = {
     '0': (-6), '1': (-5), '2': (-4),
-    '3': (-1),                '5': (1),
-    '6': (4), '7': (5), '8': (6)
+    '3': (-1),            '5': (1),
+    '6': (4),  '7': (5),  '8': (6)
     }[str(direction)]
     n.direction = _j
+    return False
 
 def makeOperator(direction: int, target: int) -> Operator:
   op = Operator()
@@ -166,12 +169,16 @@ def main():
         n.set_valid_ij_li() 
         if swich & (not auto):
             # print("AI:", n.valid_ij_li)
+            print("AI's turn")
             op = ai.select_move(n.state)
             swich = False
         else:
-            print("PLAYER:", n.valid_ij_li)
-            input_stone(n)
-            input_direction(n)
+            # print("PLAYER:", n.valid_ij_li)
+            print("Player's turn")
+            selection = True
+            while selection:
+                input_stone(n)
+                selection = input_direction(n)
             op = makeOperator(n.direction, n.target)
             swich = True
         n.state = stateTransition.stateTransition(op, n.state)
