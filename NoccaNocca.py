@@ -180,7 +180,7 @@ def main():
         n.turn = WHITE if n.turn == BLACK else BLACK
     n.winner = n.turn
     print('=' * 32)
-    winner={BLACK: 'BLACK',WHITE: 'WHITE'}[n.winner]
+    winner={BLACK: 'Player',WHITE: 'AI'}[n.winner]
     print(f'{winner} won!'.format())    
 
 if __name__ == '__main__':

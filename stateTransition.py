@@ -1,5 +1,3 @@
-from array import array
-from StateNode import StateNode
 from State import State
 from Operator import Operator
 BLACK = 0
