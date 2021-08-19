@@ -160,12 +160,12 @@ def main():
         n.turn = WHITE if swich else BLACK
 
     while n.is_continuing:
-        print('=' * 32)
+        print('=' * 25)
         stateTransition.printState(n.state) # 状態表現でのプリント
         op = Operator()
         n.set_valid_ij_li() 
         if swich & (not auto):
-            print("AI:", n.valid_ij_li)
+            # print("AI:", n.valid_ij_li)
             op = ai.select_move(n.state)
             swich = False
         else:

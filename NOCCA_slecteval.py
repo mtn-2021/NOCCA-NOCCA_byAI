@@ -87,7 +87,7 @@ def SelectEval(list: list[StateNode]) -> Operator :
 def getOperator(before: State , after: State) -> Operator:
     before2 = [i % 100 for i in before.E_position]
     operator = Operator()
-    print(before2)
+    # print(before2)
     # print(after.E_position, after.P_position)
     for i, j in enumerate(before2): #
         after2 = after.E_position[i]%100
