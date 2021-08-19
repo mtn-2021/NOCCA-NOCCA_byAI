@@ -35,7 +35,7 @@ def stateToBoard(state: State) -> list:
     if tmp:
       tmpdepth = tmp.pop() // 100
     maxdepth = max(depth, tmpdepth)
-    while len(board[index])-1 != maxdepth: board[index].append(-1)
+    while len(board[index])-1 < maxdepth: board[index].append(-1)
     board[index][len(board[index])-depth-1] = BLACK
   for p in pad:
     index = p % 100
@@ -46,7 +46,7 @@ def stateToBoard(state: State) -> list:
     if tmp:
       tmpdepth = tmp.pop() // 100
     maxdepth = max(depth, tmpdepth)
-    while len(board[index])-1 != maxdepth: board[index].append(-1)
+    while len(board[index])-1 < maxdepth: board[index].append(-1)
     board[index][len(board[index])-depth-1] = WHITE
   for e in ea:
     index = e
