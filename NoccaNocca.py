@@ -188,7 +188,10 @@ def main():
     n.winner = n.turn
     print('=' * 32)
     winner={BLACK: 'Player',WHITE: 'AI'}[n.winner]
-    print(f'{winner} won!'.format())    
+    print(f'{winner} won!'.format())
+    sys.stdout.flush()
+    key = msvcrt.getch()
+    if key == b'\r' or key == b'\x03': pass # ENTER or ctrl + c
 
 if __name__ == '__main__':
     main()
